@@ -3,7 +3,7 @@ import threading
 from typing import Optional
 import chromadb
 from app.config import get_settings
-from app.services.gemini_client import embed_texts
+from app.services.ollama_client import embed_texts
 
 _client = None
 _collection = None

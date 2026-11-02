@@ -3,6 +3,7 @@ from app.config import get_settings
 from app.schemas import ChatRequest, ChatResponse, SourceItem
 from app.security import RequireApiKey
 from app.services.gemini_client import GeminiError, generate_answer
+from app.services.ollama_client import OllamaError
 from app.services.vector_store import search_course
 from app.prompt_registry import get_tool_menu
 from app.prompt_router import route_message
@@ -93,6 +94,8 @@ def ask(request: ChatRequest):
     except HTTPException:
         raise
     except GeminiError as exc:
+        raise HTTPException(502, str(exc)) from exc
+    except OllamaError as exc:
         raise HTTPException(502, str(exc)) from exc
     except ValueError as exc:
         raise HTTPException(422, str(exc)) from exc

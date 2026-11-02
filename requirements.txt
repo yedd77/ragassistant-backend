@@ -8,3 +8,14 @@ pymupdf>=1.24,<2.0
 python-docx>=1.1,<2.0
 python-pptx>=1.0,<2.0
 python-multipart>=0.0.12
+ragas
+langchain
+langchain-community<0.4.2
+langchain-google-genai
+langchain-ollama
+pymupdf
+python-docx
+python-pptx
+python-dotenv
+pandas
+rapidfuzz

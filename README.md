@@ -20,6 +20,9 @@ ollama pull qwen3:1.7b
 ollama list
 ```
 
+Embeddings are generated locally with `nomic-embed-text`; Gemini is used only
+for answer generation.
+
 ## 2. Install backend
 Extract this folder outside Moodle's public web directory, for example `C:\laragon\www\ragassistant-backend`.
 

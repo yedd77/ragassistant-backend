@@ -7,6 +7,7 @@ from app.schemas import DeleteResponse, IndexResponse
 from app.security import RequireApiKey
 from app.services.chunker import chunk_sections
 from app.services.document_parser import DocumentParseError, extract_sections
+from app.services.ollama_client import OllamaError
 from app.services.vector_store import (
     DocumentCourseConflictError,
     delete_document,
@@ -54,6 +55,8 @@ def index_upload(
         count = index_document(document_id, filename, course_id, owner_id, visibility, chunks)
     except DocumentCourseConflictError as exc:
         raise HTTPException(409, str(exc)) from exc
+    except OllamaError as exc:
+        raise HTTPException(502, str(exc)) from exc
     except Exception as exc:
         raise HTTPException(502, f"Indexing failed: {exc}") from exc
     return IndexResponse(document_id=document_id, filename=filename, course_id=course_id,

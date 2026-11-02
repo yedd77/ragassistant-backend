@@ -11,10 +11,6 @@ from app.prompt_router import RouteResult
 logger = logging.getLogger(__name__)
 Message = dict[str, str]
 
-# Maximum number of texts sent to the embeddings endpoint in one request.
-EMBED_REQUEST_SIZE = 100
-
-
 class GeminiError(RuntimeError):
     pass
 
@@ -94,39 +90,6 @@ def _answer_text(response: types.GenerateContentResponse) -> str:
         reason = getattr(candidate.finish_reason, "name", candidate.finish_reason) or "unknown"
         raise GeminiError(f"Gemini returned an empty answer (finish reason: {reason}).")
     return answer
-
-# generate embeddings for a list of texts using the Gemini API
-# task_type is RETRIEVAL_DOCUMENT when indexing and RETRIEVAL_QUERY when searching
-def embed_texts(texts: list[str], task_type: str = "RETRIEVAL_DOCUMENT") -> list[list[float]]:
-    if not texts:
-        return []
-    settings = get_settings()
-    config = types.EmbedContentConfig(
-        task_type=task_type,
-        output_dimensionality=settings.gemini_embed_dimensions or None,
-    )
-    vectors: list[list[float]] = []
-    try:
-        for start in range(0, len(texts), EMBED_REQUEST_SIZE):
-            batch = texts[start:start + EMBED_REQUEST_SIZE]
-            response = _client().models.embed_content(
-                model=_model_id(settings.gemini_embed_model),
-                contents=batch,
-                config=config,
-            )
-            embeddings = [item.values for item in (response.embeddings or [])]
-            if len(embeddings) != len(batch) or any(not item for item in embeddings):
-                raise GeminiError("Unexpected embedding response from Gemini.")
-            vectors.extend(embeddings)
-        return vectors
-    except errors.APIError as exc:
-        raise _api_error("embeddings", exc) from exc
-    except GeminiError:
-        raise
-    except Exception as exc:
-        raise GeminiError(
-            f"Gemini embedding request failed: {type(exc).__name__}: {exc}"
-        ) from exc
 
 # generate an answer from the Gemini API based on the provided route, context, and conversation history
 def generate_answer(
