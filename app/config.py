@@ -1,8 +1,12 @@
+import os
 from functools import lru_cache
 from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from dotenv import load_dotenv
 
+load_dotenv()  
 ROOT = Path(__file__).resolve().parent.parent
+openAI_api_key = os.getenv("OPENAI_API_KEY", "")
 
 # Application settings.
 class Settings(BaseSettings):
